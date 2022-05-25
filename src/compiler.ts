@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs-node';
 import * as msgpack from '@msgpack/msgpack';
 import CompilerWorker from './compiler.worker.ts';
 import { Detector } from './detector/detector';

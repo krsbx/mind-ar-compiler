@@ -16,19 +16,6 @@ interface ControllerConstructor {
   filterBeta?: number | null;
 }
 
-interface ThreeConstructor {
-  container: HTMLDivElement;
-  imageTargetSrc: string;
-  maxTrack: number;
-  uiLoading?: string;
-  uiScanning?: string;
-  uiError?: string;
-  filterMinCF?: number | null;
-  filterBeta?: number | null;
-  warmupTolerance?: number | null;
-  missTolerance?: number | null;
-}
-
 interface IAnchor {
   group: THREE.Group;
   targetIndex: number;
@@ -45,6 +32,5 @@ export type {
   IMatching,
   ITracker,
   ControllerConstructor,
-  ThreeConstructor,
   IAnchor,
 };

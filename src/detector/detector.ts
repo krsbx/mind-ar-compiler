@@ -1,6 +1,6 @@
 // result should be similar to previous
 // improve freka descriptors computation
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs-node';
 import { GPGPUProgram, MathBackendWebGL } from '@tensorflow/tfjs-backend-webgl';
 import {
   FREAK_CONPARISON_COUNT,

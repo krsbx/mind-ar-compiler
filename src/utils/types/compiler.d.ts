@@ -1,4 +1,3 @@
-import { Vector2 } from 'three';
 import { INode } from './matching';
 
 interface IMaximaMinimaPoint {
@@ -9,8 +8,6 @@ interface IMaximaMinimaPoint {
   angle: number;
   descriptors: number[];
 }
-
-type ImageDataWithScale = ImageData & { scale: number };
 
 interface ITrackingFeature extends ImageDataWithScale {
   points: Vector2[];

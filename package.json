@@ -16,6 +16,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.0",
+    "@types/sharp": "^0.30.2",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
@@ -35,6 +36,7 @@
     "@msgpack/msgpack": "^2.7.2",
     "@tensorflow/tfjs-node": "^3.18.0",
     "@tensorflow/tfjs-node-gpu": "^3.18.0",
+    "sharp": "^0.30.5",
     "tinyqueue": "^2.0.3"
   }
 }

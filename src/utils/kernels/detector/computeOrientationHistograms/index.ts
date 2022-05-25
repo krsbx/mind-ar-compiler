@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs-node';
 import kernel1 from './kernel1';
 import kernel2 from './kernel2';
 

@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs-node';
 import { GPGPUProgram } from '@tensorflow/tfjs-backend-webgl';
 import { ORIENTATION_NUM_BINS } from '../../../constant/detector';
 

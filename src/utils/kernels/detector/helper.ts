@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs-node';
 
 const generateVariableName = (pyramidImagesT: tf.Tensor<tf.Rank>[] | tf.Tensor<tf.Rank>[][]) => {
   const imageVariableNames: string[] = [];
