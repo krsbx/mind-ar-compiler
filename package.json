@@ -32,7 +32,9 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@msgpack/msgpack": "^2.7.2",
     "@tensorflow/tfjs-node": "^3.18.0",
-    "@tensorflow/tfjs-node-gpu": "^3.18.0"
+    "@tensorflow/tfjs-node-gpu": "^3.18.0",
+    "tinyqueue": "^2.0.3"
   }
 }
