@@ -1,7 +1,8 @@
-import { extract } from './tracker/extract';
+/* eslint-disable no-case-declarations */
+import extract from './tracker/extract';
 import { buildTrackingImageList } from './image-list';
-import { ImageDataWithScale, ITrackingFeature } from './utils/types/compiler';
 import { WORKER_EVENT } from './utils/constant/compiler';
+import { ImageDataWithScale, ITrackingFeature } from './utils/types/compiler';
 
 const _extractTrackingFeatures = (
   imageList: ImageDataWithScale[],
@@ -9,8 +10,7 @@ const _extractTrackingFeatures = (
 ) => {
   const featureSets: ITrackingFeature[] = [];
 
-  for (let i = 0; i < imageList.length; i++) {
-    const image = imageList[i];
+  for (const [i, image] of imageList.entries()) {
     const points = extract(image);
 
     const featureSet = {
@@ -19,7 +19,7 @@ const _extractTrackingFeatures = (
       width: image.width,
       height: image.height,
       points,
-    };
+    } as ITrackingFeature;
 
     featureSets.push(featureSet);
 
@@ -34,35 +34,30 @@ onmessage = (msg) => {
 
   switch (data.type) {
     case WORKER_EVENT.COMPILE:
-      {
-        const { targetImages } = data;
-        const percentPerImage = 50.0 / targetImages.length;
-        let percent = 0.0;
-        const list: ITrackingFeature[][] = [];
+      const { targetImages } = data;
+      const percentPerImage = 50.0 / targetImages.length;
 
-        for (let i = 0; i < targetImages.length; i++) {
-          const targetImage = targetImages[i];
-          const imageList = buildTrackingImageList(targetImage);
-          const percentPerAction = percentPerImage / imageList.length;
+      let percent = 0.0;
+      const list: ITrackingFeature[][] = [];
 
-          const trackingData = _extractTrackingFeatures(imageList, () => {
-            percent += percentPerAction;
-            postMessage({ type: WORKER_EVENT.PROGRESS, percent });
-          });
+      for (const targetImage of targetImages) {
+        const imageList = buildTrackingImageList(targetImage);
+        const percentPerAction = percentPerImage / imageList.length;
 
-          list.push(trackingData);
-        }
-
-        postMessage({
-          type: WORKER_EVENT.COMPILE_DONE,
-          list,
+        const trackingData = _extractTrackingFeatures(<ImageDataWithScale[]>imageList, () => {
+          percent += percentPerAction;
+          postMessage({ type: WORKER_EVENT.PROGRESS, percent });
         });
+
+        list.push(trackingData);
       }
+
+      postMessage({
+        type: WORKER_EVENT.COMPILE_DONE,
+        list,
+      });
       break;
   }
 };
 
-export { _extractTrackingFeatures };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default null as any;
+export default {} as typeof Worker & (new () => Worker);

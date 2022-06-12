@@ -1,30 +1,32 @@
-import { IDistSrcParams } from './interfaces';
-
 // centroid at origin and avg distance from origin is sqrt(2)
-const normalizePoints = (coords: number[][]) => {
+//return {normalizedCoords: coords, param: {meanX: 0, meanY: 0, s: 1}}; // skip normalization
+export const normalizePoints = (coords: number[][]) => {
   let sumX = 0;
   let sumY = 0;
 
-  for (let i = 0; i < coords.length; i++) {
-    sumX += coords[i][0];
-    sumY += coords[i][1];
+  for (const coord of coords) {
+    sumX += coord[0];
+    sumY += coord[1];
   }
 
   const meanX = sumX / coords.length;
   const meanY = sumY / coords.length;
 
   let sumDiff = 0;
-  for (let i = 0; i < coords.length; i++) {
-    const diffX = coords[i][0] - meanX;
-    const diffY = coords[i][1] - meanY;
+
+  for (const coord of coords) {
+    const diffX = coord[0] - meanX;
+    const diffY = coord[1] - meanY;
+
     sumDiff += Math.sqrt(diffX * diffX + diffY * diffY);
   }
 
   const s = (Math.sqrt(2) * coords.length) / sumDiff;
 
-  const normPoints = [];
-  for (let i = 0; i < coords.length; i++) {
-    normPoints.push([(coords[i][0] - meanX) * s, (coords[i][1] - meanY) * s]);
+  const normPoints: number[][] = [];
+
+  for (const coord of coords) {
+    normPoints.push([(coord[0] - meanX) * s, (coord[1] - meanY) * s]);
   }
 
   return { normPoints, param: { meanX, meanY, s } };
@@ -48,10 +50,10 @@ const normalizePoints = (coords: number[][]) => {
 //   srcParam: param of src transform,
 //   dstParam: param of dst transform
 // }
-const denormalizeHomography = (
+export const denormalizeHomography = (
   nH: number[],
-  srcParam: IDistSrcParams,
-  dstParam: IDistSrcParams
+  srcParam: ReturnType<typeof normalizePoints>['param'],
+  dstParam: ReturnType<typeof normalizePoints>['param']
 ) => {
   /*
   Matrix version
@@ -97,9 +99,9 @@ const denormalizeHomography = (
   ];
 
   // make H[8] === 1;
-  for (let i = 0; i < 9; i++) H[i] = H[i] / H[8];
+  for (let i = 0; i < 9; i++) {
+    H[i] = H[i] / H[8];
+  }
 
   return H;
 };
-
-export { normalizePoints, denormalizeHomography };

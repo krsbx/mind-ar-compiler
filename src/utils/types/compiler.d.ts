@@ -1,6 +1,6 @@
 import { INode } from './matching';
 
-interface IMaximaMinimaPoint {
+export interface IMaximaMinimaPoint {
   maxima: boolean;
   x: number;
   y: number;
@@ -9,11 +9,13 @@ interface IMaximaMinimaPoint {
   descriptors: number[];
 }
 
-interface ITrackingFeature extends ImageDataWithScale {
+export type ImageDataWithScale = ImageData & { scale: number };
+
+export interface ITrackingFeature extends ImageDataWithScale {
   points: Vector2[];
 }
 
-interface IKeyFrame {
+export interface IKeyFrame {
   maximaPoints: IMaximaMinimaPoint[];
   minimaPoints: IMaximaMinimaPoint[];
   maximaPointsCluster: {
@@ -27,7 +29,7 @@ interface IKeyFrame {
   scale: number;
 }
 
-interface ICompilerData {
+export interface ICompilerData {
   targetImage: ImageData;
   imageList: ImageDataWithScale[];
   matchingData: IKeyFrame[];
@@ -35,7 +37,7 @@ interface ICompilerData {
   trackingData: ITrackingFeature[];
 }
 
-interface IDataList {
+export interface IDataList {
   targetImage: {
     width: number;
     height: number;
@@ -43,12 +45,3 @@ interface IDataList {
   trackingData: ITrackingFeature[];
   matchingData: IKeyFrame[];
 }
-
-export type {
-  IMaximaMinimaPoint,
-  ImageDataWithScale,
-  IKeyFrame,
-  ITrackingFeature,
-  ICompilerData,
-  IDataList,
-};

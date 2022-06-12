@@ -1,18 +1,18 @@
-interface Vector2 {
-  x: number;
-  y: number;
-}
+import canvas from 'canvas';
 
-interface Vector3 extends Vector2 {
-  z: number;
-}
+declare global {
+  interface Vector2 {
+    x: number;
+    y: number;
+  }
 
-interface ImageData {
-  data: Uint8ClampedArray | number[];
-  height: number;
-  width: number;
-}
+  interface Vector3 extends Vector2 {
+    z: number;
+  }
 
-interface ImageDataWithScale extends ImageData {
-  scale: number;
+  type ImageData = canvas.ImageData;
+
+  interface ImageDataWithScale extends ImageData {
+    scale: number;
+  }
 }
