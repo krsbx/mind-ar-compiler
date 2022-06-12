@@ -1,19 +1,12 @@
 import * as tf from '@tensorflow/tfjs-node';
 import * as msgpack from '@msgpack/msgpack';
 import canvas from 'canvas';
-import ProdCompilerWorker from './compiler.worker.ts';
 import { buildImageList, buildTrackingImageList } from './image-list';
 import hierarchicalClusteringBuild from './matching/hierarchical-clustering';
-import {
-  ICompilerData,
-  IDataList,
-  IKeyFrame,
-  ImageDataWithScale,
-  ITrackingFeature,
-} from './utils/types/compiler';
+import { ICompilerData, IDataList, IKeyFrame, ImageDataWithScale } from './utils/types/compiler';
 import * as Helper from './utils/helper';
-import { WORKER_EVENT } from './utils/constant/compiler';
 import Detector from './detector/detector';
+import ImageCompiler from './compiler.worker';
 
 // TODO: better compression method. now grey image saved in pixels, which could be larger than original image
 
@@ -27,103 +20,78 @@ class Compiler {
   }
 
   // input html Images
-  public compileImageTargets(
-    images: (HTMLImageElement | ImageBitmap)[],
+  public async compileImageTargets(
+    images: canvas.Image[],
     progressCallback: (progress: number) => void
   ) {
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise<ICompilerData[]>(async (resolve) => {
-      const targetImages: ImageData[] = [];
+    const targetImages: ImageData[] = [];
 
-      for (const image of images) {
-        const processCanvas = canvas.createCanvas(image.width, image.height);
+    for (const image of images) {
+      const processCanvas = canvas.createCanvas(image.width, image.height);
 
-        const processContext = processCanvas.getContext('2d');
-        processContext.drawImage(image, 0, 0, image.width, image.height);
+      const processContext = processCanvas.getContext('2d');
+      processContext.drawImage(image, 0, 0, image.width, image.height);
 
-        const processData = processContext.getImageData(0, 0, image.width, image.height);
-        const greyImageData = new Uint8Array(image.width * image.height);
+      const processData = processContext.getImageData(0, 0, image.width, image.height);
+      const greyImageData = new Uint8Array(image.width * image.height);
 
-        for (let i = 0; i < greyImageData.length; i++) {
-          const offset = i * 4;
+      for (let i = 0; i < greyImageData.length; i++) {
+        const offset = i * 4;
 
-          greyImageData[i] = Math.floor(
-            (processData.data[offset] +
-              processData.data[offset + 1] +
-              processData.data[offset + 2]) /
-              3
-          );
-        }
-
-        targetImages.push(
-          Helper.castTo<ImageData>({
-            data: greyImageData,
-            width: image.width,
-            height: image.height,
-          })
+        greyImageData[i] = Math.floor(
+          (processData.data[offset] + processData.data[offset + 1] + processData.data[offset + 2]) /
+            3
         );
       }
 
-      // compute matching data: 50% progress
-      const percentPerImage = 50.0 / targetImages.length;
+      targetImages.push(
+        Helper.castTo<ImageData>({
+          data: greyImageData,
+          width: image.width,
+          height: image.height,
+        })
+      );
+    }
 
-      let percent = 0.0;
+    // compute matching data: 50% progress
+    const percentPerImage = 50.0 / targetImages.length;
 
-      this.data = [];
+    let percent = 0.0;
 
-      for (let i = 0; i < targetImages.length; i++) {
-        const targetImage = targetImages[i];
-        const imageList = buildImageList(targetImage);
-        const percentPerAction = percentPerImage / imageList.length;
+    this.data = [];
 
-        const matchingData = await this._extractMatchingFeatures(imageList, () => {
-          percent += percentPerAction;
-          progressCallback(percent);
-        });
+    for (let i = 0; i < targetImages.length; i++) {
+      const targetImage = targetImages[i];
+      const imageList = buildImageList(targetImage);
+      const percentPerAction = percentPerImage / imageList.length;
 
-        const compiledData = {
-          targetImage: targetImage,
-          imageList: imageList,
-          matchingData: matchingData,
-        } as ICompilerData;
+      const matchingData = await this._extractMatchingFeatures(imageList, () => {
+        percent += percentPerAction;
+        progressCallback(percent);
+      });
 
-        this.data.push(compiledData);
-      }
+      const compiledData = {
+        targetImage: targetImage,
+        imageList: imageList,
+        matchingData: matchingData,
+      } as ICompilerData;
 
-      for (const [i, targetImage] of targetImages.entries()) {
-        const trackingImageList = buildTrackingImageList(targetImage);
+      this.data.push(compiledData);
+    }
 
-        this.data[i].trackingImageList = trackingImageList;
-      }
+    for (const [i, targetImage] of targetImages.entries()) {
+      const trackingImageList = buildTrackingImageList(targetImage);
 
-      // compute tracking data with worker: 50% progress
-      const compileTrack = () => {
-        return new Promise<ITrackingFeature[][]>((resolve) => {
-          const worker = new ProdCompilerWorker();
-          worker.onmessage = (e) => {
-            switch (e.data.type) {
-              case WORKER_EVENT.PROGRESS:
-                progressCallback(50 + e.data.percent);
-                break;
+      this.data[i].trackingImageList = trackingImageList;
+    }
 
-              case WORKER_EVENT.COMPILE_DONE:
-                resolve(e.data.list);
-                break;
-            }
-          };
+    const trackingDataList = new ImageCompiler(targetImages).getList();
 
-          worker.postMessage({ type: WORKER_EVENT.COMPILE, targetImages });
-        });
-      };
+    for (const [i, trackingData] of trackingDataList.entries()) {
+      this.data[i].trackingData = trackingData;
+    }
 
-      const trackingDataList = await compileTrack();
-
-      for (const [i, trackingData] of trackingDataList.entries()) {
-        this.data[i].trackingData = trackingData;
-      }
-
-      resolve(this.data);
-    });
+    return this.data;
   }
 
   // not exporting imageList because too large. rebuild this using targetImage

@@ -1,5 +1,3 @@
-import canvas from 'canvas';
-
 declare global {
   interface Vector2 {
     x: number;
@@ -8,11 +6,5 @@ declare global {
 
   interface Vector3 extends Vector2 {
     z: number;
-  }
-
-  type ImageData = canvas.ImageData;
-
-  interface ImageDataWithScale extends ImageData {
-    scale: number;
   }
 }

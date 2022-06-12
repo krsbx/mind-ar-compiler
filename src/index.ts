@@ -1,14 +1,14 @@
-import sharp from 'sharp';
-// import { Compiler } from './compiler';
+import canvas from 'canvas';
+import Compiler from './compiler';
 
-// const compiler = new Compiler();
+const compiler = new Compiler();
 
 const main = async () => {
-  const img = sharp('../assets/batman.jpg');
+  const image = await canvas.loadImage('./assets/batman.jpg');
 
-  console.log(img);
-
-  // await compiler.compileImageTargets([img], )
+  await compiler.compileImageTargets([image], (progress) => {
+    console.log(progress);
+  });
 
   // await compiler.exportData();
 };

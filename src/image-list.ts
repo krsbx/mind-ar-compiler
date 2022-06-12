@@ -1,4 +1,5 @@
 import resize from './utils/images/resize';
+import { ImageDataWithScale } from './utils/types/compiler';
 
 const MIN_IMAGE_PIXEL_SIZE = 100;
 

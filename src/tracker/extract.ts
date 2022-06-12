@@ -11,6 +11,7 @@ import {
   TEMPLATE_SIZE,
 } from '../utils/constant/tracker';
 import { getSimilarity, selectFeature, templateVar } from './helper';
+import { ImageDataWithScale } from '../utils/types/compiler';
 
 /*
  * Input image is in grey format. the imageData array size is width * height. value range from 0-255
